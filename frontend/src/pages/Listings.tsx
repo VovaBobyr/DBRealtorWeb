@@ -15,7 +15,7 @@ function formatDate(iso: string): string {
   return new Intl.DateTimeFormat('cs-CZ', { dateStyle: 'short' }).format(new Date(iso))
 }
 
-function SortIcon({ field, active, order }: { field: string; active: boolean; order: SortOrder }) {
+function SortIcon({ active, order }: { active: boolean; order: SortOrder }) {
   if (!active) return <ChevronsUpDown size={13} className="text-slate-400" />
   return order === 'asc'
     ? <ChevronUp size={13} className="text-blue-500" />
@@ -98,7 +98,7 @@ export default function Listings() {
                   >
                     <span className="inline-flex items-center gap-1">
                       {label}
-                      <SortIcon field={key} active={sortBy === key} order={order} />
+                      <SortIcon active={sortBy === key} order={order} />
                     </span>
                   </th>
                 ))}

@@ -103,8 +103,8 @@ export default function Trends() {
                   width={55}
                 />
                 <Tooltip
-                  formatter={(value: number, name: string) => [
-                    formatCZK(value),
+                  formatter={(value, name) => [
+                    typeof value === 'number' ? formatCZK(value) : value,
                     name === 'avg_price_czk' ? 'Avg price' : 'Avg price/m²',
                   ]}
                 />
