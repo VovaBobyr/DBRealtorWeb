@@ -1,33 +1,25 @@
-# Production overlay — add these services to C:\Git\DBRealtor\docker-compose.yml
-# OR run standalone with:
-#   docker compose -f docker-compose.prod.yml up -d
-#
-# Requires the scraper's `db` container to be on the same Docker network.
-# Set PORTAL_NETWORK to the scraper compose project network name, e.g.:
-#   PORTAL_NETWORK=dbrealtor_default
-
 services:
   portal-backend:
     build:
       context: ./backend
     image: dbrealtor-portal-backend:latest
     restart: unless-stopped
-    environment:
-      DATABASE_URL: ${DATABASE_URL}
     env_file:
       - .env
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
     networks:
       - portal
-      - scraper_db        # shared with scraper's db container
+      - scraper_network
 
   portal-nginx:
     build:
       context: ./frontend
-      dockerfile: Dockerfile   # multi-stage: builds static files, copies into nginx
+      dockerfile: Dockerfile
     image: dbrealtor-portal-nginx:latest
     restart: unless-stopped
     ports:
-      - "8080:80"              # portal available on :8080 (or change to 80)
+      - "80:80"
     volumes:
       - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
     depends_on:
@@ -38,6 +30,6 @@ services:
 networks:
   portal:
     driver: bridge
-  scraper_db:
+  scraper_network:
     external: true
-    name: ${SCRAPER_NETWORK:-dbrealtor_default}
+    name: sreality_default
