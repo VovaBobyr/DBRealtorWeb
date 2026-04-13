@@ -3,7 +3,7 @@
 set -euo pipefail
 
 COMPOSE_FILE="docker-compose.prod.yml"
-HEALTH_URL="http://localhost/api/health"
+HEALTH_URL="http://localhost/health"
 MAX_ATTEMPTS=20
 
 echo "==> Pulling latest code"

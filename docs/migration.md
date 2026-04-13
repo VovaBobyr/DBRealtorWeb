@@ -129,7 +129,7 @@ portal-nginx      dbrealtor-portal-nginx:latest    Up X seconds
 
 | Check | Command | Expected |
 |---|---|---|
-| Backend health | `curl http://localhost/api/health` | `{"status":"ok"}` |
+| Backend health | `curl http://localhost/health` | `{"status":"ok"}` |
 | Dashboard API | `curl http://localhost/api/dashboard/summary` | JSON with `total_listings`, `avg_price_czk`, etc. |
 | React portal | Open `http://SERVER_IP` in browser | Portal loads, no blank page |
 | Dashboard page | Navigate to `/` | 4 summary cards, last scrape timestamp |
