@@ -11,7 +11,6 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts'
-import type { TooltipProps } from 'recharts'
 import { useTrends } from '../api/useTrends'
 import { useNewPerDay } from '../api/useNewPerDay'
 
@@ -23,7 +22,10 @@ function formatCZK(val: number): string {
   return new Intl.NumberFormat('cs-CZ', { style: 'currency', currency: 'CZK', maximumFractionDigits: 0 }).format(val)
 }
 
-function NewPerDayTooltip({ active, payload, label }: TooltipProps<number, string>) {
+interface TooltipEntry { value?: number }
+interface NewPerDayTooltipProps { active?: boolean; payload?: TooltipEntry[]; label?: string }
+
+function NewPerDayTooltip({ active, payload, label }: NewPerDayTooltipProps) {
   if (!active || !payload || payload.length === 0) return null
   return (
     <div className="bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm shadow-sm">
