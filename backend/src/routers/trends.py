@@ -1,5 +1,6 @@
-"""GET /api/trends/price — monthly avg price trend.
-GET /api/trends/new-listings — daily count of newly seen listings.
+"""GET /api/trends/price       — monthly avg price trend.
+GET /api/trends/new-per-day  — daily new-listing count (same locality/type/months filters).
+GET /api/trends/new-listings — daily count, days-window filter (legacy).
 """
 
 from datetime import datetime, timedelta, timezone
@@ -23,6 +24,11 @@ class PriceTrendPoint(BaseModel):
 
 class NewListingsDayPoint(BaseModel):
     day: str
+    count: int
+
+
+class NewPerDayPoint(BaseModel):
+    date: str
     count: int
 
 
@@ -73,6 +79,42 @@ async def get_price_trend(
         )
         for r in rows
     ]
+
+
+@router.get("/new-per-day", response_model=list[NewPerDayPoint])
+async def get_new_per_day(
+    locality: str = Query(default="Praha", description="Locality substring filter"),
+    property_type: str = Query(default="flat", description="flat|house|land|commercial"),
+    months: int = Query(default=12, ge=1, le=60, description="Number of months to look back"),
+    session: AsyncSession = Depends(get_session),
+) -> list[NewPerDayPoint]:
+    """Count of new listings per calendar day, filtered by locality and property type.
+
+    Uses the same locality/property_type/months parameters as /price so both
+    charts on the Trends page share a single set of controls.
+    """
+    cutoff = datetime.now(timezone.utc) - timedelta(days=months * 31)
+    rows = await session.execute(
+        text(
+            """
+            SELECT
+                DATE(first_seen_at AT TIME ZONE 'Europe/Prague') AS date,
+                COUNT(*)::int                                     AS count
+            FROM listings
+            WHERE locality      ILIKE :locality_pat
+              AND property_type = :property_type
+              AND first_seen_at >= :cutoff
+            GROUP BY date
+            ORDER BY date
+            """
+        ),
+        {
+            "locality_pat": f"%{locality}%",
+            "property_type": property_type,
+            "cutoff": cutoff,
+        },
+    )
+    return [NewPerDayPoint(date=str(r.date), count=r.count) for r in rows]
 
 
 @router.get("/new-listings", response_model=list[NewListingsDayPoint])

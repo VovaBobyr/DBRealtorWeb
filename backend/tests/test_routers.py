@@ -70,6 +70,50 @@ async def test_trends_price_months_validation(client: AsyncClient) -> None:
     assert response.status_code == 422
 
 
+# ---------------------------------------------------------------------------
+# /api/trends/new-per-day
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_new_per_day_returns_list(client: AsyncClient) -> None:
+    response = await client.get(
+        "/api/trends/new-per-day?locality=Praha&property_type=flat&months=12"
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert isinstance(data, list)
+    for point in data:
+        assert "date" in point
+        assert "count" in point
+        assert isinstance(point["date"], str)
+        assert isinstance(point["count"], int)
+        assert point["count"] > 0
+
+
+@pytest.mark.asyncio
+async def test_new_per_day_months_validation(client: AsyncClient) -> None:
+    response = await client.get("/api/trends/new-per-day?months=0")
+    assert response.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_new_per_day_months_upper_bound(client: AsyncClient) -> None:
+    response = await client.get("/api/trends/new-per-day?months=61")
+    assert response.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_new_per_day_dates_ordered(client: AsyncClient) -> None:
+    """Dates must be ascending — the chart expects chronological order."""
+    response = await client.get(
+        "/api/trends/new-per-day?locality=Praha&property_type=flat&months=12"
+    )
+    assert response.status_code == 200
+    dates = [p["date"] for p in response.json()]
+    assert dates == sorted(dates)
+
+
 @pytest.mark.asyncio
 async def test_trends_price_months_upper_bound(client: AsyncClient) -> None:
     response = await client.get("/api/trends/price?months=61")

@@ -26,6 +26,11 @@ export interface NewListingsDayPoint {
   count: number
 }
 
+export interface NewPerDayPoint {
+  date: string
+  count: number
+}
+
 export interface ListingItem {
   id: string
   sreality_id: string
