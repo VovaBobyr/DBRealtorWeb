@@ -1,4 +1,6 @@
-"""GET /api/trends/price — monthly avg price trend."""
+"""GET /api/trends/price — monthly avg price trend.
+GET /api/trends/new-listings — daily count of newly seen listings.
+"""
 
 from datetime import datetime, timedelta, timezone
 
@@ -16,6 +18,11 @@ class PriceTrendPoint(BaseModel):
     month: str
     avg_price_czk: int
     avg_price_per_m2: int | None
+    count: int
+
+
+class NewListingsDayPoint(BaseModel):
+    day: str
     count: int
 
 
@@ -66,3 +73,31 @@ async def get_price_trend(
         )
         for r in rows
     ]
+
+
+@router.get("/new-listings", response_model=list[NewListingsDayPoint])
+async def get_new_listings_trend(
+    days: int = Query(default=30, ge=7, le=365, description="Number of days to look back"),
+    session: AsyncSession = Depends(get_session),
+) -> list[NewListingsDayPoint]:
+    """Daily count of listings first seen within the given window.
+
+    Counts all listings regardless of current active status — a listing that
+    appeared on day X and was later delisted still counts for that day.
+    """
+    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+    rows = await session.execute(
+        text(
+            """
+            SELECT
+                DATE(first_seen_at AT TIME ZONE 'Europe/Prague') AS day,
+                COUNT(*)::int                                     AS count
+            FROM listings
+            WHERE first_seen_at >= :cutoff
+            GROUP BY day
+            ORDER BY day
+            """
+        ),
+        {"cutoff": cutoff},
+    )
+    return [NewListingsDayPoint(day=str(r.day), count=r.count) for r in rows]

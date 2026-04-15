@@ -20,12 +20,16 @@ a React/TypeScript frontend. It does **not** scrape anything.
 
 ## Database schema reference
 
-Full schema is documented in `C:\Git\DBRealtor\docs\architecture.md`.
+Full schema is documented in `../DBRealtor/docs/architecture.md`.
 
 Tables (all **read-only** from this project):
 - `listings` — active/delisted real estate listings
 - `price_history` — price snapshots per listing
 - `scrape_runs` — metadata about each scraper execution
+
+Views (created by the scraper's Phase 5 observability work, no migration):
+- `scrape_run_summary` — extends `scrape_runs` with computed columns:
+  `duration_s` (int), `listings_unchanged` (int), `error_count` (int)
 
 ## Hard rules
 

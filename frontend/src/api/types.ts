@@ -21,6 +21,11 @@ export interface PriceTrendPoint {
   count: number
 }
 
+export interface NewListingsDayPoint {
+  day: string
+  count: number
+}
+
 export interface ListingItem {
   id: string
   sreality_id: string
