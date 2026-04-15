@@ -23,7 +23,7 @@ Server
 | Docker Engine | 24+ | `docker --version` |
 | Docker Compose plugin | 2.20+ | `docker compose version` |
 | Git | any | `git --version` |
-| Open port | 8080 (or 80) | firewall / security group |
+| Open port | 80 | firewall / security group |
 
 ### Install Docker (if not present)
 
@@ -98,10 +98,10 @@ The script does automatically:
 2. Detects the scraper's Docker network name
 3. `docker compose -f docker-compose.prod.yml build`
 4. `docker compose -f docker-compose.prod.yml up -d`
-5. Health-checks `http://localhost:8080/health`
+5. Health-checks `http://localhost/health`
 6. Prints the server IP when done
 
-Portal is available at: **`http://SERVER_IP:8080`**
+Portal is available at: **`http://SERVER_IP`**
 
 ---
 
@@ -127,7 +127,7 @@ SCRAPER_NETWORK=dbrealtor_default \
 
 # Verify
 docker compose -f docker-compose.prod.yml ps
-curl http://localhost:8080/health
+curl http://localhost/health
 ```
 
 ---
@@ -138,7 +138,7 @@ curl http://localhost:8080/health
 Browser
   │
   ▼
-portal-nginx :8080
+portal-nginx 
   │  /           → serves pre-built React static files (from frontend/Dockerfile)
   │  /api/        → proxy_pass → portal-backend:8000
   │  /health      → proxy_pass → portal-backend:8000
@@ -164,11 +164,11 @@ Key difference from dev:
 docker compose -f docker-compose.prod.yml ps
 
 # Backend health
-curl http://localhost:8080/health
+curl http://localhost/health
 # Expected: {"status":"ok"}
 
 # API responding
-curl "http://localhost:8080/api/dashboard/summary" | python3 -m json.tool
+curl "http://localhost/api/dashboard/summary" | python3 -m json.tool
 
 # Logs
 docker compose -f docker-compose.prod.yml logs -f
@@ -204,31 +204,31 @@ docker compose -f docker-compose.prod.yml up -d --build
 
 ## Firewall
 
-Allow port 8080 (or 80 if you change the mapping):
+Allow port 80:
 
 ```bash
 # ufw (Ubuntu)
-sudo ufw allow 8080/tcp
+sudo ufw allow 80/tcp
 
 # firewalld (CentOS/RHEL)
-sudo firewall-cmd --permanent --add-port=8080/tcp
+sudo firewall-cmd --permanent --add-port=80/tcp
 sudo firewall-cmd --reload
 
-# AWS security group / GCP firewall rule — add inbound TCP 8080
+# AWS security group / GCP firewall rule — add inbound TCP 80
 ```
 
 ---
 
-## Optional: run on port 80 instead of 8080
+## Optional: run on a non-standard port
 
 In `docker-compose.prod.yml`, change:
 
 ```yaml
 ports:
-  - "80:80"    # was "8080:80"
+  - "8080:80"    # exposes on host port 8080 instead of 80
 ```
 
-Then allow port 80 in the firewall and access via `http://SERVER_IP`.
+Then allow the chosen port in the firewall and access via `http://SERVER_IP:8080`.
 
 ---
 

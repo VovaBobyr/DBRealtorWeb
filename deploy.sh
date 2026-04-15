@@ -23,7 +23,7 @@ SCRAPER_NETWORK="$SCRAPER_NETWORK" docker compose -f docker-compose.prod.yml up 
 
 echo "==> Waiting for backend health check"
 for i in $(seq 1 15); do
-  if curl -sf http://localhost:8080/health > /dev/null 2>&1; then
+  if curl -sf http://localhost:80/health > /dev/null 2>&1; then
     echo "    Backend is healthy"
     break
   fi
@@ -32,4 +32,4 @@ for i in $(seq 1 15); do
 done
 
 echo ""
-echo "Done. Portal available at http://$(hostname -I | awk '{print $1}'):8080"
+echo "Done. Portal available at http://$(hostname -I | awk '{print $1}')"
