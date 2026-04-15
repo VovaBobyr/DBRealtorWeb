@@ -191,8 +191,8 @@ export default function Trends() {
                   width={40}
                 />
                 <Tooltip
-                  formatter={(value: number) => [value, 'New listings']}
-                  labelFormatter={(label: string) => `Date: ${label}`}
+                  formatter={(value) => [typeof value === 'number' ? value : 0, 'New listings']}
+                  labelFormatter={(label) => `Date: ${String(label)}`}
                 />
                 <Bar dataKey="count" fill="#10b981" radius={[3, 3, 0, 0]} name="New listings" />
               </BarChart>
